@@ -50,17 +50,17 @@ usage () {
 
 NO_COLOR=0
 declare -A _cl
-_cl[gray]="$(tput setaf 0)"  
-_cl[red]="$(tput setaf 1)"   
-_cl[green]="$(tput setaf 2)" 
+_cl[gray]="$(tput setaf 0)"
+_cl[red]="$(tput setaf 1)"
+_cl[green]="$(tput setaf 2)"
 _cl[yellow]="$(tput setaf 3)"
-_cl[blue]="$(tput setaf 4)"  
+_cl[blue]="$(tput setaf 4)"
 _cl[purple]="$(tput setaf 5)"
-_cl[cyan]="$(tput setaf 6)"  
-_cl[white]="$(tput setaf 7)" 
-_cl[reset]="$(tput sgr0)"    
-_cl[bold]="$(tput bold)"     
-_cl[rev]="$(tput rev)"       
+_cl[cyan]="$(tput setaf 6)"
+_cl[white]="$(tput setaf 7)"
+_cl[reset]="$(tput sgr0)"
+_cl[bold]="$(tput bold)"
+_cl[rev]="$(tput rev)"
 
 _cl[SAY]="${_cl[bold]}${_cl[white]}"
 _cl[ASK1]="${_cl[green]}"
@@ -83,7 +83,7 @@ col()  {
 ##################################
 _trace() {
     # call with no arg to turn off.
-    local on=$1
+    local on=${1:-}
     if [[ x$on == x ]] ; then
 	set +x
     else
@@ -101,11 +101,11 @@ troff() { _trace ;     }
 _dlev() {
     local nlev=$1
     shift
-    [[ $nlev -ge $_DEBUG ]] || return 0
+    [[ $nlev -le $_DEBUG ]] || return 0
     local level="DEBUG"
     local color=${_cl[$level]}
     local col_reset=${_cl[reset]}
-    
+
     if [[ x$NO_COLOR == x1 ]]; then
 	color=''
 	col_reset=''
@@ -114,13 +114,13 @@ _dlev() {
     local log_line=""
     local td
     td="$(date +'%Y-%m-%d %H:%M:%S %Z')"
-    
+
     local fcn="$NAME(${BASH_LINENO[2]:-}):${FUNCNAME[2]}(${BASH_LINENO[1]:-})"
     while IFS=$'\n' read -r log_line; do
 	#td=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
 	echo -e "${td} ${color}$(printf "[%-7s(%d)]" "${level}" "$nlev") ${fcn}${col_reset} ${log_line}" | $_LOG 1>&2
     done <<< "${@:-}"
-    
+
 }
 d0() { _dlev 0 "${@}" ; true   ; }
 d1() { _dlev 1 "${@}" ; true   ; }
@@ -135,7 +135,7 @@ _log() {
     shift
     local color=${_cl[$level]}
     local col_reset=${_cl[reset]}
-    
+
     if [[ x$NO_COLOR == x1 ]]; then
 	color=''
 	col_reset=''
@@ -144,7 +144,7 @@ _log() {
     local log_line=""
     local td
     td="$(date +'%Y-%m-%d %H:%M:%S %Z')"
-    
+
     local fcn="$NAME(${BASH_LINENO[2]:-}):${FUNCNAME[2]}(${BASH_LINENO[1]:-})"
     while IFS=$'\n' read -r log_line; do
 	#td=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
@@ -175,7 +175,7 @@ say()  {
 }
 vbs() {
     [[ x${opt_v:-} != x ]]  || return 0
-    _log "VERBOSE" "${@}" ; true   ; 
+    _log "VERBOSE" "${@}" ; true   ;
 }
 
 
@@ -186,11 +186,11 @@ vbs() {
 abspath() {
     local curdir
     local retval
-    
+
     curdir=$(pwd)
     if [[ -d "$1" ]]; then
 	retval=$( cd "$1" || return ; pwd )
-    else 
+    else
 	retval=$( cd "$( dirname "$1" )" || return ; pwd )/$(basename "$1")
     fi
     cd "$curdir" || return
@@ -199,7 +199,7 @@ abspath() {
 
 #usage: if ask "Do you [y/n]" y; then this; else that; fi
 # will write
-#  Do you [y/n]?> 
+#  Do you [y/n]?>
 # and return true if use enters y
 function ask() {
     local cl1
@@ -209,7 +209,7 @@ function ask() {
     local clr
     clr="$( col 'reset' )"
     if [[ x${ASSUME_YES:-} != x ]]; then /bin/true; return ; fi
-    echo -en "${cl1}${1}${clr}  ${cl2}$3${clr}> " 1>&2 
+    echo -en "${cl1}${1}${clr}  ${cl2}$3${clr}> " 1>&2
     read -r ans
     if [[ x$ans == x$2 ]]; then
 	/bin/true
@@ -217,7 +217,7 @@ function ask() {
 	/bin/false
     fi
 }
-	 
+
 #######################################
 # Switch processing
 #######################################
@@ -278,9 +278,9 @@ while getopts dvhyTl:q:w:cr:nNFSAEi:f:l:m:p:s:x:C opt ; do
 	    opt_v=1
 	    if [[ "$_DEBUG" =~ ^-?[0-9]+$ ]]; then
 	     # also [ "$_DEBUG" -eq "$_DEBUG" ] (mind the single brackets, though)
-		_DEBUG=0
-	    else
 		_DEBUG=$(( "$_DEBUG" + 1 ))
+	    else
+		_DEBUG=0
 	    fi
 	    ;;
 	T)
@@ -288,7 +288,7 @@ while getopts dvhyTl:q:w:cr:nNFSAEi:f:l:m:p:s:x:C opt ; do
 	    #set -x
 	    _TRACING=1
 	    ;;
-	
+
 	l) _LOG="tee -a $OPTARG"
 	   LOGFILE=$OPTARG
 	   ;;
@@ -333,7 +333,7 @@ foo() {
     info "scalar 0: ${FUNCNAME[0]}"
     info "scalar 1: ${FUNCNAME[1]}"
     info "array: " "${FUNCNAME[@]}"
-	
+
 }
 
 foo
