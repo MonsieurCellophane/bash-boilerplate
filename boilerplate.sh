@@ -50,17 +50,26 @@ usage () {
 
 NO_COLOR=0
 declare -A _cl
-_cl[gray]="$(tput setaf 0)"
-_cl[red]="$(tput setaf 1)"
-_cl[green]="$(tput setaf 2)"
-_cl[yellow]="$(tput setaf 3)"
-_cl[blue]="$(tput setaf 4)"
-_cl[purple]="$(tput setaf 5)"
-_cl[cyan]="$(tput setaf 6)"
-_cl[white]="$(tput setaf 7)"
-_cl[reset]="$(tput sgr0)"
-_cl[bold]="$(tput bold)"
-_cl[rev]="$(tput rev)"
+# notice: tput emits errors if TERM unset
+# so make sure it is before using tput
+if [[ x${TERM:-} == x ]]; then
+    TERM=dumb
+else
+    :
+    #echo "TERM is |$TERM|"
+fi
+export TERM
+_cl[gray]="$(tput setaf 0   || true )"
+_cl[red]="$(tput setaf 1    || true )"
+_cl[green]="$(tput setaf 2  || true )"
+_cl[yellow]="$(tput setaf 3 || true )"
+_cl[blue]="$(tput setaf 4   || true )"
+_cl[purple]="$(tput setaf 5 || true )"
+_cl[cyan]="$(tput setaf 6   || true )"
+_cl[white]="$(tput setaf 7  || true )"
+_cl[reset]="$(tput sgr0     || true )"
+_cl[bold]="$(tput bold      || true )"
+_cl[rev]="$(tput rev        || true )"
 
 _cl[SAY]="${_cl[bold]}${_cl[white]}"
 _cl[ASK1]="${_cl[green]}"
